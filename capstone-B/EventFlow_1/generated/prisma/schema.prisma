@@ -1,0 +1,120 @@
+// initial code 
+
+// generator client{
+//     provider = "prisma-client-js"
+// }
+
+// datasource db{
+//     provider = "postgresql" 
+//     url = env("DATABASE_URL")
+// }
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// All Models or Tables 
+
+// 1 Registration Table
+
+model Registration {
+  id        String
+  gmail     String   @id
+  password  String
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+}
+
+// 2 User Profile Table
+
+model UserProfile {
+  gmail      String  @id
+  name       String
+  mobile     String?
+  gender     String?
+  institute  String?
+  address    String?
+  department String?
+
+  // Relation with UserInterest
+  userInterest UserInterest? @relation("ProfileToInterest")
+}
+
+// 3 user interest table
+
+model UserInterest {
+  gmail            String  @id
+  interest         String? //changed from profession
+  completed_course String? //changed from sector
+  major            String? // changed from topic
+  hobby            String? //changed from educational_qualification
+  department       String?
+
+  // Relation back to UserProfile (owning side)
+  userProfile UserProfile @relation("ProfileToInterest", fields: [gmail], references: [gmail])
+}
+
+// 4 Registered Events Table
+
+model RegisteredEvents {
+  gmail  String @id
+  events Json
+}
+
+// 5 Club Details Table
+
+model ClubDetails {
+  club_id     String  @id
+  name        String
+  category    String
+  description String?
+  club_email  String  @unique
+  admin       String
+}
+
+// 6 Events Table
+
+model Events {
+  event_id    String  @id
+  title       String
+  description String?
+  category    String
+  club_name   String
+  date        String
+  location    String
+  venue       String
+  total_seat  Int
+  isApporve   Boolean @default(false)
+  img_url     String?
+
+  ticket Ticket? @relation("EventTicket")
+}
+
+// 7 ticket table
+
+model Ticket {
+  event_id           String  @id
+  ticket_name        String
+  ticket_type        String
+  price              Int
+  ticket_description String
+  codeForDiscount    String?
+  discount           Int?
+  discountType       String?
+
+  events Events @relation("EventTicket", fields: [event_id], references: [event_id])
+}
+
+// 8 admin table 
+
+model Admin {
+  club_id       String @id
+  club_password String
+  role          String @default("admin")
+}
